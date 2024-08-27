@@ -8,7 +8,7 @@ export default function UserDropdown({user}) {
             <div>
                 <MenuButton className="inline-flex w-full justify-between items-center gap-x-1.5 rounded-md bg-slate-200 px-3 py-2 text-sm font-semibold text-gray-900 ">
                     <div className="flex flex-col m-1">
-                        <span className="text-black font-semibold text-md">{user.data.name}</span>
+                        <span className="text-black font-semibold text-md">{user?user.data.name: 'Joe'}</span>
                         <span className="text-gray-400 font-normal text-xs text-start">Admin</span>
                     </div>
                     <div className="flex items-center gap-x-2">

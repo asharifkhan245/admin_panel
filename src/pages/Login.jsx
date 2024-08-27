@@ -1,45 +1,41 @@
-import React, { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
-import { UserContext } from '../context/UserContext';
+import { useDispatch, useSelector } from 'react-redux';
+import  {loginUser}  from '../store/UserSlice';
+
 
 function Login() {
-    const {setUser} = useContext(UserContext);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
 
+    const { loading, error } = useSelector((state) => state.user);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevData => ({
+        setFormData((prevData) => ({
             ...prevData,
-            [name]: value
+            [name]: value,
         }));
     };
-
-    const navigate = useNavigate();
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/login', formData);
-            if(response.data.status === 200){
-                const userData = response.data; 
-                setUser(userData);
+            const response = await dispatch(loginUser(formData)).unwrap();
+            if (response) {
+                toast.success('Login Successfully');
                 navigate('/dashboard');
-                
-                toast.success("Login Successfully");
-            }else{
-                if(response.data.status === 400){
-                    toast.error("Email or password is incorrect!")
-                }
+            } else {
+                toast.error('Email or password is incorrect!');
             }
-        } catch (error) {
-            console.log(error)
-           
+        } catch (err) {
+            toast.error(err || 'An error occurred. Please try again.');
         }
     };
 
@@ -61,7 +57,7 @@ function Login() {
                             />
                         </svg>
                     </div>
-                    
+
                     <form className="mt-8" onSubmit={handleFormSubmit}>
                         <div className="space-y-5">
                             <div>
@@ -104,12 +100,17 @@ function Login() {
                                     type="submit"
                                     className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
                                 >
-                                    Log in <ArrowRight className="ml-2 hover:translate-x-1 transition-all" size={16} />
+                                    {loading ? 'Logging in...' : 'Log in'}
+                                    <ArrowRight className="ml-2 hover:translate-x-1 transition-all" size={16} />
                                 </button>
+                                {error && (
+                                    <div className="mt-2 text-red-500 text-sm">
+                                        {error}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </form>
-                  
                 </div>
             </div>
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { editEmployee, registerEmployee } from '../store/UserSlice';
 
 const Modal = ({ showModal, handleClose, getEmployees, edit, editData, modal, getProducts, showEditData, showedit }) => {
     const initialFormData = {
@@ -36,6 +38,8 @@ const Modal = ({ showModal, handleClose, getEmployees, edit, editData, modal, ge
         });
     };
 
+
+    const dispatch = useDispatch();
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -47,23 +51,53 @@ const Modal = ({ showModal, handleClose, getEmployees, edit, editData, modal, ge
                 }
             }
 
+
             if (edit || showedit) {
                 const url = modal
                     ? `http://127.0.0.1:8000/api/edit-product/${showEditData.id}`
-                    : `http://127.0.0.1:8000/api/edit-employee/${editData.id}`;
+                    : dispatch(editEmployee(editData.id));
                 await axios.post(url, data, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 toast.success(modal ? 'Product updated successfully!' : 'Employee updated successfully!');
+
             } else {
-                const url = modal
-                    ? 'http://127.0.0.1:8000/api/add-product'
-                    : 'http://127.0.0.1:8000/api/add-employee';
-                await axios.post(url, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
-                toast.success(modal ? 'Product added successfully!' : 'Employee added successfully!');
+
+                const response = await dispatch(registerEmployee(data));
+                if (response) {
+                    toast.success("Employee added successfully");
+                } else {
+                    toast.error("something went wrong");
+                }
+
+
             }
+
+
+
+            // if (edit || showedit) {
+            //     const url = modal
+            //         ? `http://127.0.0.1:8000/api/edit-product/${showEditData.id}`
+            //         : `http://127.0.0.1:8000/api/edit-employee/${editData.id}`;
+            //     await axios.post(url, data, {
+            //         headers: { 'Content-Type': 'multipart/form-data' },
+            //     });
+            //     toast.success(modal ? 'Product updated successfully!' : 'Employee updated successfully!');
+            // } else {
+            //     const url = modal
+            //         ? 'http://127.0.0.1:8000/api/add-product'
+            //         : 'http://127.0.0.1:8000/api/add-employee';
+            //     await axios.post(url, data, {
+            //         headers: { 'Content-Type': 'multipart/form-data' },
+            //     });
+            //     toast.success(modal ? 'Product added successfully!' : 'Employee added successfully!');
+            // }
+
+
+
+
+
+
 
             modal ? getProducts() : getEmployees();
             handleClose();

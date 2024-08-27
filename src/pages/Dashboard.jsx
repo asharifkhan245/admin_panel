@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import { UserContext } from "../context/UserContext";
 import UserDropdown from "../components/UserDropdown";
 import { IoIosNotifications } from "react-icons/io";
 import { FaBars } from "react-icons/fa6";
@@ -9,9 +8,10 @@ import face01 from '../assets/images/faces/face1.jpg'
 import face02 from '../assets/images/faces/face2.jpg'
 import face06 from '../assets/images/faces/face6.jpg'
 import face04 from '../assets/images/faces/face4.jpg'
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
-    const { user } = useContext(UserContext);
+    const user = useSelector((state) => state.user.data);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 

@@ -6,7 +6,9 @@ import { MdDeleteOutline } from "react-icons/md";
 import { BiEdit } from "react-icons/bi";
 import { FaRegEye } from "react-icons/fa";
 import ViewModal from '../components/ViewModal';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { deleteEmployee } from '../store/UserSlice';
 
 
 
@@ -29,11 +31,17 @@ const Table = () => {
         setEditData(null);
         setViewModal(false);
     };
+    const dispatch = useDispatch();
 
     const getEmployees = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/api/get-employees');
-            setEmployees(response.data.data);
+            // const response = await dispatch(getEmployees());
+            if(response){
+                
+                setEmployees(response.data.data);
+            }
+
         } catch (error) {
             console.log(error);
         }
@@ -41,12 +49,16 @@ const Table = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/delete-employe/${id}`);
-            showToast('Employee deleted successfully!', 'success');
-            getEmployees();
+            const response = await dispatch(deleteEmployee(id));
+            if(response){
+                toast.success("Employee deleted successfully");
+                getEmployees();
+            }else{
+                toast.error("something went wrong");
+
+            }
         } catch (error) {
-            console.log(error);
-            showToast('Failed to delete employee.', 'error');
+           toast.error(error);
         }
     };
 
