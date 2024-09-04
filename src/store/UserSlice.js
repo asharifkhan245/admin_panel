@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import toast from "react-hot-toast";
+
+// Login 
 
 export const loginUser = createAsyncThunk(
     'user/loginUser',
@@ -16,8 +17,7 @@ export const loginUser = createAsyncThunk(
     }
 );
 
-
-
+// Register Employee
 
 export const registerEmployee = createAsyncThunk(
     'user/registerEmployee',
@@ -35,7 +35,22 @@ export const registerEmployee = createAsyncThunk(
     }
 )
 
+// Register Product
+export const registerProduct = createAsyncThunk(
+    'user/registerProduct',
+    async (data, {rejectWithValue}) => {
+        try {
+            const response =  await axios.post('http://127.0.0.1:8000/api/add-product', data);
+            if(response){
+                return response
+            }
+        } catch (error) {
+            return rejectWithValue(error.response.data.message || error.message);
+        }
+    }
+)
 
+// delete Employee
 export const deleteEmployee = createAsyncThunk(
     'user/deleteEmployee',
 
@@ -52,37 +67,58 @@ export const deleteEmployee = createAsyncThunk(
     }
 )
 
+// delete product
+export const deleteProduct =  createAsyncThunk(
+    'user/deleteProduct',
 
-export const getEmployees = createAsyncThunk(
-    'user/getEmployees', 
-    async ({rejectWithValue}) => {
-        try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/get-employees`);
-            if(response){
-                return response;
-            }
-        } catch (error) {
-            return rejectWithValue(error.response.data.message || error.message);
-            
-        }
-    }
-)
-
-export const editEmployee = createAsyncThunk(
-    'user/editEmployee',
     async (id, {rejectWithValue}) => {
+    
         try {
             
-            const response  = axios.post(`http://127.0.0.1:8000/api/edit-product/${id}`);
+            const response = await axios.post(`http://127.0.0.1:8000/api/delete-product/${id}`);
             if(response){
                 return response
             }
+
+        } catch (error) {
+            return rejectWithValue(error.response.data.message || error.message);
+        }
+    }
+)
+
+// edit employee
+export const editEmployee = createAsyncThunk(
+    'user/editEmployee',
+    async ({ id, data }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(`http://127.0.0.1:8000/api/edit-employee/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return response.data; 
+        } catch (error) {
+            return rejectWithValue(error.response.data.message || error.message);
+        }
+    }
+);
+
+// edit Product
+export const  editProduct  = createAsyncThunk(
+    'user/editProduct', 
+    async ({id , data}) => {
+        try {
+            
+            const response =  await axios.post(`http://127.0.0.1:8000/api/edit-product/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return  response.data;
+
         } catch (error) {
             return rejectWithValue(error.response.data.message || error.message);
             
         }
     }
 )
+
 
 const userSlice = createSlice({
     name: 'user',
@@ -148,25 +184,6 @@ const userSlice = createSlice({
                 }else{
                     state.error = action.payload || action.error.message;
                 }
-            }).addCase(getEmployees.pending, (state)=>{
-                state.loading = true;
-                state.data = null;
-                state.error = false;
-            }).addCase(getEmployees.fulfilled, (state,action)=>{
-                state.loading = false;
-                state.data = action.payload;
-                state.error = null;
-            }).addCase(getEmployees.rejected, (state,action)=>{
-                state.loading = false;
-                state.data = null;
-
-                console.log(action.error.message)
-                if(action.error.message === "No employee found"){
-                    state.error = "No employes found";
-                }else{
-                    state.error = action.payload || action.error.message;
-
-                }
             }).addCase(editEmployee.pending, (state, action) => {
                 state.loading = true;
                 state.user = null;
@@ -185,6 +202,25 @@ const userSlice = createSlice({
                     state.error = action.payload || action.error.message;
 
                 }
+            }).addCase(editProduct.pending, (state)=>{
+                state.loading = true;
+                state.user = null;
+                state.error = null;
+            }).addCase(editProduct.fulfilled, (state,action)=> {
+
+                state.loading = false;
+                state.user = action.payload;
+                state.error = null;
+            }).addCase(editProduct.rejected, (state,action)=>{
+                state.loading = false;
+                state.user = null;
+               console.log(action.error.message)
+
+               if(action.error.message === 'Product Not found'){
+                state.error = "Product not found";
+               }else{
+                state.error = action.payload || action.error.message;
+               }
             })
     },
 });

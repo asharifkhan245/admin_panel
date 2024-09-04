@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
-import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { editEmployee, registerEmployee } from '../store/UserSlice';
+import { editEmployee, editProduct, registerEmployee, registerProduct } from '../store/UserSlice'; // Ensure these actions are set up
 
 const Modal = ({ showModal, handleClose, getEmployees, edit, editData, modal, getProducts, showEditData, showedit }) => {
     const initialFormData = {
@@ -38,76 +37,51 @@ const Modal = ({ showModal, handleClose, getEmployees, edit, editData, modal, ge
         });
     };
 
-
     const dispatch = useDispatch();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
             const data = new FormData();
-
             for (const key in formData) {
                 if (formData[key]) {
                     data.append(key, formData[key]);
                 }
             }
 
-
             if (edit || showedit) {
-                const url = modal
-                    ? `http://127.0.0.1:8000/api/edit-product/${showEditData.id}`
-                    : dispatch(editEmployee(editData.id));
-                await axios.post(url, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
-                toast.success(modal ? 'Product updated successfully!' : 'Employee updated successfully!');
+                if (modal) {
+                    const response = await dispatch(editProduct({ id: showEditData.id, data }));
+                    response && toast.success("Product Updated successfully");
 
-            } else {
-
-                const response = await dispatch(registerEmployee(data));
-                if (response) {
-                    toast.success("Employee added successfully");
                 } else {
-                    toast.error("something went wrong");
+                    const response = await dispatch(editEmployee({ id: editData.id, data }));
+                    response && toast.success("Updated successfully");
+
                 }
+            } else {
+                if (modal) {
+
+                    const response = await dispatch(registerProduct(data));
+                    response && toast.success("Product added successfully");
+                } else {
+
+                    const response = await dispatch(registerEmployee(data));
+                    response && toast.success("Employee added successfully");
 
 
+                }
             }
-
-
-
-            // if (edit || showedit) {
-            //     const url = modal
-            //         ? `http://127.0.0.1:8000/api/edit-product/${showEditData.id}`
-            //         : `http://127.0.0.1:8000/api/edit-employee/${editData.id}`;
-            //     await axios.post(url, data, {
-            //         headers: { 'Content-Type': 'multipart/form-data' },
-            //     });
-            //     toast.success(modal ? 'Product updated successfully!' : 'Employee updated successfully!');
-            // } else {
-            //     const url = modal
-            //         ? 'http://127.0.0.1:8000/api/add-product'
-            //         : 'http://127.0.0.1:8000/api/add-employee';
-            //     await axios.post(url, data, {
-            //         headers: { 'Content-Type': 'multipart/form-data' },
-            //     });
-            //     toast.success(modal ? 'Product added successfully!' : 'Employee added successfully!');
-            // }
-
-
-
-
-
-
 
             modal ? getProducts() : getEmployees();
             handleClose();
             setFormData(initialFormData);
         } catch (error) {
-            console.log(error);
+            console.error(error);
             toast.error('Server side error');
         }
     };
-
 
     return (
         <>

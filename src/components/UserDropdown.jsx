@@ -1,18 +1,39 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { RiArrowDropDownLine } from "react-icons/ri";
 import ProfileLogo from './ProfileLogo';
+import { useNavigate } from 'react-router-dom';
 
-export default function UserDropdown({user}) {
+
+
+
+
+
+
+export default function UserDropdown({ user }) {
+
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+
+        localStorage.removeItem('user');
+        navigate("/");
+
+
+    }
+
+
+
     return (
         <Menu as="div" className="relative inline-block text-left" >
             <div>
                 <MenuButton className="inline-flex w-full justify-between items-center gap-x-1.5 rounded-md bg-slate-200 px-3 py-2 text-sm font-semibold text-gray-900 ">
                     <div className="flex flex-col m-1">
-                        <span className="text-black font-semibold text-md">{user?user.data.name: 'Joe'}</span>
+                        <span className="text-black font-semibold text-md">{user ? user.name : 'Joe'}</span>
                         <span className="text-gray-400 font-normal text-xs text-start">Admin</span>
                     </div>
                     <div className="flex items-center gap-x-2">
-                        <ProfileLogo /> 
+                        <ProfileLogo />
                         <RiArrowDropDownLine className="h-5 w-5 text-gray-400" />
                     </div>
                 </MenuButton>
@@ -31,12 +52,13 @@ export default function UserDropdown({user}) {
                             Account settings
                         </a>
                     </MenuItem>
-                  
+
                     <form action="#" method="POST">
                         <MenuItem>
                             <button
                                 type="submit"
                                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                                onClick={handleLogout}
                             >
                                 Sign out
                             </button>

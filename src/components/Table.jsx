@@ -36,9 +36,7 @@ const Table = () => {
     const getEmployees = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/api/get-employees');
-            // const response = await dispatch(getEmployees());
             if(response){
-                
                 setEmployees(response.data.data);
             }
 
@@ -47,6 +45,9 @@ const Table = () => {
         }
     };
 
+
+
+    // handle delete employee
     const handleDelete = async (id) => {
         try {
             const response = await dispatch(deleteEmployee(id));

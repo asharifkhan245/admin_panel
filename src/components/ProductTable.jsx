@@ -6,24 +6,30 @@ import { FaRegEye } from "react-icons/fa";
 import ViewModal from '../components/ViewModal';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { deleteProduct } from '../store/UserSlice';
 
 const ProductTable = () => {
     const [modal, setShowmodal] = useState(false);
     const [products, setProducts] = useState([]);
     const [showedit, setshowedit] = useState(false);
     const [showEditData, setShowEditData] = useState(null);
+    const [viewProductModal, setViewProductModal]= useState(false);
+    const [viewProductModalData, setViewProductModalData] = useState([]);
 
     const handleShow = () => {
-        setShowEditData(null);  // Clear any previous data
-        setshowedit(false);      // Ensure showedit is false for adding a new product
+        setShowEditData(null);  
+        setshowedit(false);    
         setShowmodal(true);
     }
 
     const handleClose = () => {
         setShowmodal(false);
         setshowedit(false);
+        setViewProductModal(false)
     }
 
+    const dispatch  =  useDispatch();
     const getProducts = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/api/products');
@@ -35,14 +41,21 @@ const ProductTable = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/delete-product/${id}`);
-            toast.success("Deleted Successfully");
+            const response  = dispatch(deleteProduct(id));
+            response && toast.success("Product deleted successfully");
             getProducts();
+
         } catch (error) {
             console.log(error);
             toast.error('Failed to delete products.', 'error');
         }
     };
+
+
+    const handleView = (data)=>{
+        setViewProductModal(true);
+        setViewProductModalData(data);
+    }
 
     const handleEdit = (product) => {
         setShowEditData(product);
@@ -160,7 +173,7 @@ const ProductTable = () => {
 
 
             <Modal modal={modal} handleClose={handleClose} getProducts={getProducts} showEditData={showEditData} showedit={showedit} />
-            <ViewModal />
+            <ViewModal viewProductModal={viewProductModal} viewProductModalData={viewProductModalData} handleClose={handleClose} setShowmodal={setShowmodal} />
             <Toaster
                 position="top-center"
                 reverseOrder={false}
